@@ -270,6 +270,6 @@ app.delete("/api/deleteAccount", Authentication, async (req, res) => {
   });
 });
 
-app.listen("4000", () => {
-  console.log("This server is running on port 4000");
+app.listen(process.env.PORT, () => {
+  console.log(`This server is running on port ${process.env.PORT}`);
 });
