@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookiesParser = require("cookie-parser");
 const dotenv = require("dotenv").config();
+const cors = require('cors')
 
 // console.log("env data : ",process.env)
 const app = express();
@@ -11,6 +12,12 @@ const app = express();
 // middleware
 app.use(express.json());
 app.use(cookiesParser());
+app.use(cors({
+  origin:"*",
+  method:["GET","POST","PUT","DELETE"],
+  credentials:true
+}))
+
 // database setup
 const MONGO_URL = process.env.MONGO_URL;
 
