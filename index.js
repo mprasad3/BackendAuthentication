@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(cookiesParser());
 app.use(cors({
-  origin:"*",
+  origin:process.env.FRONTEND_URL,
   method:["GET","POST","PUT","DELETE"],
   credentials:true
 }))
@@ -98,14 +98,14 @@ app.post("/api/register", async (req, res) => {
 
     if (registeredUser) {
       return res.status(400).json({
-        sucess: true,
+        success: false,
         message: "User already Exist!",
       });
     }
     // check confirm password and password are same.
     if (password !== confirmPass) {
       return res.status(401).json({
-        sucess: true,
+        success: false,
         message: "confirm password and password are not same",
       });
     }
@@ -119,17 +119,20 @@ app.post("/api/register", async (req, res) => {
       password: hashedPassword,
     })
       .then(() => {
-        console.log("User registered !");
+        return res.status(201).json({
+          success: true,
+          message: `${name} Registerd Successfully!`,
+        });
       })
       .catch(() => {
-        console.log("Registration failed !");
+        return res.status(500).json({
+          success: false,
+          message: "User Registration failed!",
+        });
       });
 
     // registration message
-    return res.status(201).json({
-      sucess: true,
-      message: `${name} Registerd Successfully!`,
-    });
+    
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -147,17 +150,17 @@ app.post("/api/login", async (req, res) => {
     const user = await User.findOne({ email: email });
     if (!user) {
       return res.status(400).json({
-        success: true,
+        success: false,
         message: "Email is not registered !",
       });
     }
-
+ 
     // password match
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(400).json({
-        success: true,
+        success: false,
         message: "Password Doesn't match!",
       });
     }
@@ -205,7 +208,7 @@ app.get("/api/profile", Authentication, (req, res) => {
 
 // 03 logout
 app.get("/api/logout", (req, res) => {
-  res.status(200).cookie("token", "").json({
+  res.status(200).clearCookie("token", { path: "/", httpOnly: true, secure: true, sameSite: "None" }).json({
     success: true,
     message: "logged out successfully !!",
     user: req.user,
@@ -220,7 +223,7 @@ app.put("/api/updateEmail", Authentication, async (req, res) => {
   const user = await User.findOne({ email: email });
   if (!user) {
     return res.status(400).json({
-      sucess: true,
+      success: false,
       message: "Email not found !",
     });
   }
@@ -235,7 +238,7 @@ app.put("/api/updateEmail", Authentication, async (req, res) => {
   if (updatedData.email !== newEmail)
     return res
       .status(400)
-      .json({ sucess: true, message: "Email is not updated" });
+      .json({ success: true, message: "Email is not updated" });
 
   // return message with update email
   res.status(200).json({
@@ -253,7 +256,7 @@ app.put("/api/updatePassword", Authentication, async (req, res) => {
   if (!isMatch)
     return res
       .status(400)
-      .json({ success: false, message: "Enter the correct old password" });
+      .json({ success: false, message: "Enter the correct current password" });
 
   const hashPassword = await bcrypt.hash(newPassword, 10);
 
@@ -271,7 +274,7 @@ app.delete("/api/deleteAccount", Authentication, async (req, res) => {
   const deletedAccount = await User.deleteOne({ _id: req.user.id });
   console.log("deleted Acccount ; ", deletedAccount);
 
-  res.status(200).cookie("token", "").json({
+  res.status(200).clearCookie("token", { path: "/", httpOnly: true, secure: true, sameSite: "None" }).json({
     success: true,
     message: "Account deleted permanently !",
   });
