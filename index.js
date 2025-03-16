@@ -8,15 +8,31 @@ const cors = require('cors')
 
 // console.log("env data : ",process.env)
 const app = express();
+const allowedOrigins = [
+  'http://localhost:3000',  // Vite local development server
+  'http://localhost:5173',  // Vite local development server (if running on port 5173, update if needed)
+  process.env.FRONTEND_URL  // The environment variable for production frontend URL
+];
 
 // middleware
 app.use(express.json());
 app.use(cookiesParser());
+// app.use(cors({
+//   origin:process.env.FRONTEND_URL,
+//   method:["GET","POST","PUT","DELETE"],
+//   credentials:true
+// }))
 app.use(cors({
-  origin:process.env.FRONTEND_URL,
-  method:["GET","POST","PUT","DELETE"],
-  credentials:true
-}))
+  origin: function(origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 
 // database setup
 const MONGO_URL = process.env.MONGO_URL;
