@@ -207,10 +207,20 @@ const Authentication = async (req, res, next) => {
     });
   }
 
-  const decode = jwt.verify(token, process.env.JWT_SECRET);
-  req.user = await User.findById(decode.id);
+  // const decode = jwt.verify(token, process.env.JWT_SECRET);
+  // req.user = await User.findById(decode.id);
 
-  next();
+  // next();
+try {
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decode.id);
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token",
+    });
+  }
 };
 
 // profile section
