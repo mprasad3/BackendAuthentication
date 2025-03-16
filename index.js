@@ -290,7 +290,7 @@ app.delete("/api/deleteAccount", Authentication, async (req, res) => {
   const deletedAccount = await User.deleteOne({ _id: req.user.id });
   console.log("deleted Acccount ; ", deletedAccount);
 
-  res.status(200).clearCookie("token", { path: "/", httpOnly: true, secure: true, sameSite: "None" }).json({
+  res.status(200).cookie("token",'').json({
     success: true,
     message: "Account deleted permanently !",
   });
