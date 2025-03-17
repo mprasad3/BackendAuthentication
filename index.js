@@ -184,7 +184,7 @@ app.post("/api/login", async (req, res) => {
     const userId = user._id;
     const token = jwt.sign({ id: userId }, process.env.JWT_SECRET);
 
-    res.status(200).cookie("token", token).json({
+    res.status(200).cookie("token", token,{ httpOnly: true, secure: true, sameSite: "None" }).json({
       success: true,
       message: "Logged in Successfully !",
     });
