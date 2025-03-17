@@ -201,7 +201,7 @@ const Authentication = async (req, res, next) => {
   const { token } = req.cookies;
 
   if (!token) {
-    return res.status(404).json({
+    return res.status(401).json({
       success: false,
       message: "Login first",
     });
